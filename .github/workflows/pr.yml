@@ -1,0 +1,54 @@
+name: PR
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  build-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node.js for use with actions
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+
+      - name: Yarn Install and Build
+        run: |
+          yarn install
+          yarn build
+
+      - name: Jest Test
+        run: yarn test
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: dist
+          path: dist
+  test:
+    name: Run Action
+    needs: build-test
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: "eu-west-1"
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v1
+        with:
+          name: dist
+
+      - name: Run Action
+        uses: ./
+        with:
+          bucket-prefix: "s3-website-pr-action"
+          folder-to-copy: "./example-app"

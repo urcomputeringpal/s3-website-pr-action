@@ -1,0 +1,15 @@
+name: 'S3 Website PR'
+description: 'Automatically deploy built PR bundles to an S3 static website.'
+branding:
+  icon: 'cloud'
+  color: 'orange'
+inputs:
+  bucket-prefix:
+    description: 'Prefix of the bucket name. The PR number will be appended to this value.'
+    required: true
+  folder-to-copy:
+    description: 'Folder to copy assets from into S3.'
+    required: false
+runs:
+  using: 'node12'
+  main: 'dist/index.js'

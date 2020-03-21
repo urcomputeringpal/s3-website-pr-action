@@ -1,0 +1,33 @@
+name: PR - Closed
+
+on:
+  pull_request:
+    branches: [master]
+    types: [closed]
+
+jobs:
+  delete-s3:
+    name: Delete S3 Website
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: "eu-west-1"
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node.js for use with actions
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+
+      - name: Yarn Install and Build
+        run: |
+          yarn install
+          yarn build
+
+      - name: Run Action
+        uses: ./
+        with:
+          bucket-prefix: "s3-website-pr-action"
