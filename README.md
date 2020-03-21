@@ -4,7 +4,7 @@
 
 # Usage 📝
 
-See [action.yml](action.yml)
+See [s3-website-pr-action-example](https://github.com/danburtenshaw/s3-website-pr-action-example) for an example application using [create-react-app](https://github.com/facebook/create-react-app).
 
 ## PR opened or updated:
 
