@@ -1,10 +1,15 @@
+import * as github from "@actions/github";
 import S3 from '../s3Client';
 import { DeleteObjectsRequest } from 'aws-sdk/clients/s3';
 import validateEnvVars from '../utils/validateEnvVars';
+import deactivateDeployments from '../utils/deactivateDeployments';
+import deleteDeployments from "../utils/deleteDeployments";
 
 export const requiredEnvVars = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY'];
 
 export default async (bucketName: string) => {
+  const { repo } = github.context;
+
   validateEnvVars(requiredEnvVars);
 
   console.log('Emptying S3 bucket...');
@@ -31,6 +36,10 @@ export default async (bucketName: string) => {
   }
 
   await S3.deleteBucket({ Bucket: bucketName }).promise();
+
+
+  await deactivateDeployments(repo);
+  await deleteDeployments(repo)
 
   console.log('S3 bucket removed');
 };

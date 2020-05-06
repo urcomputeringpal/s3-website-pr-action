@@ -1,6 +1,8 @@
-# Actions - s3-website-pr-action 🚀
+# Actions - s3-website-pr-action 🚀 ![Main Workflow](https://github.com/danburtenshaw/s3-website-pr-action/workflows/Main%20Workflow/badge.svg) ![Github Actions Marketplace](https://img.shields.io/badge/Marketplace-Github%20Action-brightgreen)
 
-![Main Workflow](https://github.com/danburtenshaw/s3-website-pr-action/workflows/Main%20Workflow/badge.svg)
+### Automatically deploy built PR bundles to an S3 static website
+
+![Example](Example.png?raw=true)
 
 # Usage 📝
 
@@ -26,7 +28,7 @@ build:
           yarn build
 
       - name: Deploy S3 Website
-        uses: danburtenshaw/s3-website-pr-action@v1
+        uses: danburtenshaw/s3-website-pr-action@v2
         with:
           bucket-prefix: "example-app"
           folder-to-copy: "./dist"
@@ -68,12 +70,13 @@ build:
   runs-on: ubuntu-latest
   steps:
     - name: Delete Website Bucket
-      uses: danburtenshaw/s3-website-pr-action@v1
+      uses: danburtenshaw/s3-website-pr-action@v2
       with:
         bucket-prefix: "example-app"
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 Execute the `s3-website-pr-action` action on pull request `closed` events. This will remove the S3 bucket that was created in the previous stage.
 
@@ -82,6 +85,7 @@ Environment Variable | Description
 ------------ | -------------
 AWS_ACCESS_KEY_ID | AWS Access Key ID of an IAM user
 AWS_SECRET_ACCESS_KEY | AWS Secret Access Key of an IAM user
+GITHUB_TOKEN | GitHub automatically provides the secret value
 
 ### Required Parameters
 Parameter | Description
