@@ -7,7 +7,7 @@ import deleteDeployments from "../utils/deleteDeployments";
 
 export const requiredEnvVars = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY'];
 
-export default async (bucketName: string) => {
+export default async (bucketName: string, environmentPrefix: string) => {
   const { repo } = github.context;
 
   validateEnvVars(requiredEnvVars);
@@ -38,8 +38,8 @@ export default async (bucketName: string) => {
   await S3.deleteBucket({ Bucket: bucketName }).promise();
 
 
-  await deactivateDeployments(repo);
-  await deleteDeployments(repo)
+  await deactivateDeployments(repo, environmentPrefix);
+  await deleteDeployments(repo, environmentPrefix)
 
   console.log('S3 bucket removed');
 };

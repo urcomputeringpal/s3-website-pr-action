@@ -13,7 +13,7 @@ export const requiredEnvVars = [
   "GITHUB_TOKEN",
 ];
 
-export default async (bucketName: string, uploadDirectory: string) => {
+export default async (bucketName: string, uploadDirectory: string, environmentPrefix: string) => {
   const websiteUrl = `http://${bucketName}.s3-website-us-east-1.amazonaws.com`;
   const { repo } = github.context;
   const branchName = github.context.payload.pull_request!.head.ref;
@@ -40,12 +40,12 @@ export default async (bucketName: string, uploadDirectory: string) => {
     console.log("S3 Bucket already exists. Skipping creation...");
   }
 
-  await deactivateDeployments(repo);
+  await deactivateDeployments(repo, environmentPrefix);
 
   const deployment = await githubClient.repos.createDeployment({
     ...repo,
     ref: `refs/heads/${branchName}`,
-    environment: `PR-${github.context.payload.pull_request!.number}`,
+    environment: `${environmentPrefix || 'PR-'}${github.context.payload.pull_request!.number}`,
     auto_merge: false,
     transient_environment: true,
     required_contexts: [],

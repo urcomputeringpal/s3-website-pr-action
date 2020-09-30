@@ -6,8 +6,9 @@ export default async (
         owner: string;
         repo: string;
     },
+    environmentPrefix: string
 ) => {
-    const environment = `PR-${github.context.payload.pull_request!.number}`;
+    const environment = `${environmentPrefix || 'PR-'}${github.context.payload.pull_request!.number}`;
 
     const deployments = await githubClient.repos.listDeployments({
         repo: repo.repo,
