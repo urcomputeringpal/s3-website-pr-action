@@ -54,6 +54,7 @@ Parameter | Description
 ------------ | -------------
 bucket-prefix | Prefix to the S3 bucket name
 folder-to-copy | The directory to your built web app. This folder will be copied to S3
+environment-prefix | Prefix to the GitHub Deployment. Defaults to 'PR-'
 
 
 ## PR closed:

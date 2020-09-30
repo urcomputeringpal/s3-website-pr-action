@@ -10,6 +10,9 @@ inputs:
   folder-to-copy:
     description: 'Folder to copy assets from into S3.'
     required: false
+  environment-prefix:
+    description: 'Prefix of the GitHub Deployment Environment. The PR number will be appended to this value.'
+    required: false
 runs:
   using: 'node12'
   main: 'dist/index.js'

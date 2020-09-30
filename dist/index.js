@@ -290,8 +290,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const github = __importStar(__webpack_require__(469));
 const githubClient_1 = __importDefault(__webpack_require__(119));
-exports.default = (repo) => __awaiter(void 0, void 0, void 0, function* () {
-    const environment = `PR-${github.context.payload.pull_request.number}`;
+exports.default = (repo, environmentPrefix) => __awaiter(void 0, void 0, void 0, function* () {
+    const environment = `${environmentPrefix || 'PR-'}${github.context.payload.pull_request.number}`;
     const deployments = yield githubClient_1.default.repos.listDeployments({
         repo: repo.repo,
         owner: repo.owner,
@@ -7736,7 +7736,7 @@ exports.requiredEnvVars = [
     "AWS_SECRET_ACCESS_KEY",
     "GITHUB_TOKEN",
 ];
-exports.default = (bucketName, uploadDirectory) => __awaiter(void 0, void 0, void 0, function* () {
+exports.default = (bucketName, uploadDirectory, environmentPrefix) => __awaiter(void 0, void 0, void 0, function* () {
     const websiteUrl = `http://${bucketName}.s3-website-us-east-1.amazonaws.com`;
     const { repo } = github.context;
     const branchName = github.context.payload.pull_request.head.ref;
@@ -7758,8 +7758,8 @@ exports.default = (bucketName, uploadDirectory) => __awaiter(void 0, void 0, voi
     else {
         console.log("S3 Bucket already exists. Skipping creation...");
     }
-    yield deactivateDeployments_1.default(repo);
-    const deployment = yield githubClient_1.default.repos.createDeployment(Object.assign(Object.assign({}, repo), { ref: `refs/heads/${branchName}`, environment: `PR-${github.context.payload.pull_request.number}`, auto_merge: false, transient_environment: true, required_contexts: [] }));
+    yield deactivateDeployments_1.default(repo, environmentPrefix);
+    const deployment = yield githubClient_1.default.repos.createDeployment(Object.assign(Object.assign({}, repo), { ref: `refs/heads/${branchName}`, environment: `${environmentPrefix || 'PR-'}${github.context.payload.pull_request.number}`, auto_merge: false, transient_environment: true, required_contexts: [] }));
     if (isSuccessResponse(deployment.data)) {
         yield githubClient_1.default.repos.createDeploymentStatus(Object.assign(Object.assign({}, repo), { deployment_id: deployment.data.id, state: "in_progress" }));
         console.log("Uploading files...");
@@ -12071,6 +12071,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const bucketPrefix = core.getInput('bucket-prefix');
         const folderToCopy = core.getInput('folder-to-copy');
+        const environmentPrefix = core.getInput('environment-prefix');
         const prNumber = github.context.payload.pull_request.number;
         const bucketName = `${bucketPrefix}-pr${prNumber}`;
         console.log(`Bucket Name: ${bucketName}`);
@@ -12080,10 +12081,10 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
                 case 'opened':
                 case 'reopened':
                 case 'synchronize':
-                    yield prUpdatedAction_1.default(bucketName, folderToCopy);
+                    yield prUpdatedAction_1.default(bucketName, folderToCopy, environmentPrefix);
                     break;
                 case 'closed':
-                    yield prClosedAction_1.default(bucketName);
+                    yield prClosedAction_1.default(bucketName, environmentPrefix);
                     break;
                 default:
                     console.log('PR not created, modified or deleted. Skiping...');
@@ -13641,9 +13642,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const github = __importStar(__webpack_require__(469));
 const githubClient_1 = __importDefault(__webpack_require__(119));
-exports.default = (repo) => __awaiter(void 0, void 0, void 0, function* () {
+exports.default = (repo, environmentPrefix) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
-    const environment = `PR-${github.context.payload.pull_request.number}`;
+    const environment = `${environmentPrefix || 'PR-'}${github.context.payload.pull_request.number}`;
     const deployments = yield githubClient_1.default.graphql(`
       query GetDeployments($owner: String!, $repo: String!, $environments: [String!]) {
         repository(owner: $owner, name: $repo) {
@@ -26429,7 +26430,7 @@ const validateEnvVars_1 = __importDefault(__webpack_require__(732));
 const deactivateDeployments_1 = __importDefault(__webpack_require__(14));
 const deleteDeployments_1 = __importDefault(__webpack_require__(442));
 exports.requiredEnvVars = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY'];
-exports.default = (bucketName) => __awaiter(void 0, void 0, void 0, function* () {
+exports.default = (bucketName, environmentPrefix) => __awaiter(void 0, void 0, void 0, function* () {
     const { repo } = github.context;
     validateEnvVars_1.default(exports.requiredEnvVars);
     console.log('Emptying S3 bucket...');
@@ -26452,8 +26453,8 @@ exports.default = (bucketName) => __awaiter(void 0, void 0, void 0, function* ()
         console.log('S3 bucket already empty.');
     }
     yield s3Client_1.default.deleteBucket({ Bucket: bucketName }).promise();
-    yield deactivateDeployments_1.default(repo);
-    yield deleteDeployments_1.default(repo);
+    yield deactivateDeployments_1.default(repo, environmentPrefix);
+    yield deleteDeployments_1.default(repo, environmentPrefix);
     console.log('S3 bucket removed');
 });
 
